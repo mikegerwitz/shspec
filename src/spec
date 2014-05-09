@@ -202,14 +202,22 @@ fail()
 #
 # This should only be used in the case of a specification parsing error or
 # other fatal errors; it should not be used for failing expectations.
+#
+# If no file and line number are provided, this will default to the current
+# spec caller, if any.
 _bail()
 {
-  local msg="$1"
+  local -r msg="$1"
   local line="$2"
   local file="$3"
 
+  # default to current caller if no line/file was provided
+  if [ -z "$file" -a -n "$__spec_caller" ]; then
+    read line file <<< "$__spec_caller"
+  fi
+
   echo -n "error: $1" >&2
-  [ $# -gt 1 ] && echo -n " at $file:$line" >&2
+  [ -n "$file" ] && echo -n " at $file:$line" >&2
 
   echo
   exit 1
