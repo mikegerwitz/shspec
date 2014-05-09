@@ -23,6 +23,17 @@
 __INC_EXPECT_CORE=1
 
 
+##
+# Shorthand for bailing out on unrecognized clauses
+_bail_clause()
+{
+  local -r type="$1"
+  local -r clause="$2"
+
+  _bail "unrecognized \`$type' clause: \`$2'"
+}
+
+
 _expect--succeed() { test "$1" -eq 0; }
 _expect--fail()    { test "$1" -ne 0; }
 
@@ -36,7 +47,7 @@ _expect--output()
   if [ -n "$clause" ]; then
     [ "$clause" == 'without newline' ] \
       && nl=-n \
-      || _bail "unrecognized output clause: $clause"
+      || _bail_clause output "$clause"
   fi
 
   # we will eventually be interested in this output
