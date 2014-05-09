@@ -1,5 +1,5 @@
 #!/bin/bash
-# Core expectations
+# Core expectation tests
 #
 #  Copyright (C) 2014 Mike Gewitz
 #
@@ -19,10 +19,29 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-[ -z $__INC_EXPECT_CORE ] || return
-__INC_EXPECT_CORE=1
+
+describe succeed
+  it will succeed when command exits with status code 0
+    expect _expect--succeed 0
+      to succeed
+  end
+
+  it will fail when command exits with non-zero status code
+    expect _expect--succeed 1
+      to fail
+  end
+end
 
 
-_expect--succeed() { test "$1" -eq 0; }
-_expect--fail()    { test "$1" -ne 0; }
+describe fail
+  it will succeed when command exits with non-zero status code
+    expect _expect--fail 1
+      to succeed
+  end
+
+  it will fail when command exits with status code 0
+    expect _expect--fail 0
+      to fail
+  end
+end
 

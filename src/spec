@@ -167,8 +167,7 @@ to()
   type "$assert" &>/dev/null \
     || _bail "unknown expectation: \`$type'" $__spec_caller
 
-  # invoke partially-applied assertion with remaining arguments
-  $assert "$@" || fail "$expect_full"
+  $assert "$__spec_rexit" "$@" || fail "$expect_full"
   __spec_caller=
 }
 
@@ -212,13 +211,5 @@ _bail()
 
   echo
   exit 1
-}
-
-
-##
-# Retrieve the exit code of the most recently executed command
-_spec-last-exit()
-{
-  echo "$__spec_rexit"
 }
 
