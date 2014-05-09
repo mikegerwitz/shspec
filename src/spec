@@ -167,7 +167,9 @@ to()
   type "$assert" &>/dev/null \
     || _bail "unknown expectation: \`$type'" $__spec_caller
 
-  $assert "$__spec_rexit" "$@" || fail "$expect_full"
+  $assert "$__spec_rexit" "$@" <<< "$__spec_result" \
+    || fail "$expect_full"
+
   __spec_caller=
 }
 

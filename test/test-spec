@@ -139,6 +139,20 @@ describe expect
     '; to succeed
   end
 
+  it pipes command stdout to expectation handler
+    expect test-run <<< '
+      declare str=foo
+      _expect--chk() { test "$(cat)" == "$2"; }
+
+      describe foo
+        it pipes command output
+          expect echo "$str"
+            to chk "$str"
+        end
+      end
+    '; to succeed
+  end
+
 
   describe to
     it fails when missing assertion string
