@@ -1,0 +1,198 @@
+#!/bin/bash
+# Specification DSL test
+#
+#  Copyright (C) 2014 Mike Gewitz
+#
+#  This file is part of shspec.
+#
+#  shspec is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# TODO: This is incompletely tested because the tests must be written as the
+# system itself is written! Therefore, it is not presently capable of
+# running all necessary assertions on itself.
+#
+# Note: this test case will run pretty slowly because it forks a new process
+# for each expectation.
+##
+
+
+##
+# It is necessary to test syntax in a separate process so we do not
+# interfere with the existing stack
+#
+# This will take an arbitrary script from stdin and execute it
+test-run()
+{
+  ../src/run-spec <( cat )
+}
+
+
+describe _begin-spec
+  it is a placeholder that exits successfully
+    expect _begin-spec
+      to succeed
+  end
+end
+
+
+describe describe
+  it fails if not paired with an "'end'"
+    expect test-run <<< '
+      describe foo
+      # no end
+    '; to fail
+  end
+
+  it succeeds if paired with matching "'end'"
+    expect test-run <<< '
+      describe foo
+      end
+    '; to succeed
+  end
+end
+
+
+describe it
+  it fails within "'describe'" if not paired with an "'end'"
+    expect test-run <<< '
+      describe it test
+        it will fail
+        # no end
+      end
+    '; to fail
+  end
+
+  it succeeds within "'describe'" if paired with an "'end'"
+    expect test-run <<< '
+      describe it test
+        it will succeed
+        end
+      end
+    '; to succeed
+  end
+end
+
+
+describe expect
+  it fails when not within "'describe'"
+    expect test-run <<< '
+      describe will fail
+        # not within it
+        expect true; to succeed
+      end
+    '; to fail
+  end
+
+  it succeeds with "'to'" clause when when within "'describe'"
+    expect test-run <<< '
+      describe foo
+        it will succeed
+          expect true; to succeed
+        end
+      end
+    '; to succeed
+  end
+
+  it fails when missing "'to'" clause of expectation
+    expect test-run <<< '
+      describe foo
+        it will fail
+          # no "to" clause
+          expect true
+        end
+      end
+    '; to fail
+  end
+
+  it cannot be "'end'd" before "'to'" clause
+    expect test-run <<< '
+      describe foo
+        it will fail
+          expect true
+          # expectation is unfinished
+          end
+        end
+      end
+    '; to fail
+  end
+
+  it properly executes quoted command lines
+    expect test-run <<< '
+      chk() { test $# -eq 1; }
+      describe foo
+        it handles whitespace
+          expect chk "foo bar"
+            to succeed
+        end
+      end
+    '; to succeed
+  end
+
+
+  describe to
+    it fails when missing assertion string
+      expect test-run <<< '
+        describe foo
+          it will fail
+            # missing assertion sting
+            expect true; to
+          end
+        end
+      '; to fail
+    end
+
+    it can only follow an "'expect'" clause
+      expect test-run <<< '
+        describe foo
+          it will fail
+            # does not follow expect clause
+            to succeed
+        end
+      '; to fail
+    end
+
+    it will fail on unknwon expectation
+      expect test-run <<< '
+        describe foo
+          it will fail
+            expect true
+              to ___some-invalid-expectation___
+          end
+        end
+      '; to fail
+    end
+
+    it will fail when expectation fails
+      expect test-run <<< '
+        describe foo
+          it will fail
+            # true is not a failure
+            expect true; to fail
+          end
+        end
+      '; to fail
+    end
+
+    it will succeed when expectation succeeds
+      expect test-run <<< '
+        describe foo
+          it will succeed
+            expect false; to fail
+          end
+        end
+      '; to succeed
+    end
+  end
+end
+
