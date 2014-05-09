@@ -26,3 +26,20 @@ __INC_EXPECT_CORE=1
 _expect--succeed() { test "$1" -eq 0; }
 _expect--fail()    { test "$1" -ne 0; }
 
+_expect--output()
+{
+  local -r cmp="$2"
+  shift 2
+  local -r clause="$*"
+
+  local nl=
+  if [ -n "$clause" ]; then
+    [ "$clause" == 'without newline' ] \
+      && nl=-n \
+      || _bail "unrecognized output clause: $clause"
+  fi
+
+  # we will eventually be interested in this output
+  diff <( echo $nl "$cmp" ) - &>/dev/null
+}
+
