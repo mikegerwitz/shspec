@@ -127,30 +127,72 @@ describe expect
     '; to fail
   end
 
-  it properly executes quoted command lines
-    expect test-run <<< '
-      chk() { test $# -eq 1; }
-      describe foo
-        it handles whitespace
-          expect chk "foo bar"
-            to succeed
+
+  # the "premise" is the command executed by the `expect' line
+  describe premise
+    it properly executes quoted command lines
+      expect test-run <<< '
+        chk() { test $# -eq 1; }
+        describe foo
+          it handles whitespace
+            expect chk "foo bar"
+              to succeed
+          end
         end
-      end
-    '; to succeed
+      '; to succeed
+    end
   end
 
-  it pipes command stdout to expectation handler
-    expect test-run <<< '
-      declare str=foo
-      _expect--chk() { test "$(cat)" == "$2"; }
 
-      describe foo
-        it pipes command output
-          expect echo "$str"
-            to chk "$str"
+  # the expectation handler performs the assertion logic
+  describe handler
+    it is provided premise exit code as first argument
+      expect test-run <<< '
+        declare excode=123
+        _expect--chk() { test "$1" -eq $excode; }
+
+        describe foo
+          it exposes exit code
+            expect exit $excode
+              to chk
+          end
         end
-      end
-    '; to succeed
+      '; to succeed
+    end
+
+    # the "remainder" clause is the portion of the sentence that follows the
+    # execution of the expectation handler
+    it is provided remainder clause after shift argument
+      expect test-run <<< '
+        declare remain="a b c"
+        _expect--chk()
+        {
+          shift "$2"
+          test "$*" == "$remain"
+        }
+
+        describe foo
+          it should expose remainder clause
+            expect true
+              to chk $remain
+          end
+        end
+      '; to succeed
+    end
+
+    it receives premise output via stdin
+      expect test-run <<< '
+        declare str=foo
+        _expect--chk() { test "$(cat)" == "$str"; }
+
+        describe foo
+          it pipes command output
+            expect echo "$str"
+              to chk
+          end
+        end
+      '; to succeed
+    end
   end
 
 

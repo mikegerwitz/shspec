@@ -167,7 +167,12 @@ to()
   type "$assert" &>/dev/null \
     || _bail "unknown expectation: \`$type'" $__spec_caller
 
-  $assert "$__spec_rexit" "$@" <<< "$__spec_result" \
+  # first argument is exit code, second is the number of arguments to shift
+  # to place $1 at the remainder clause, and all remaining arguments are
+  # said remainder clause; the shift argument allows the implementation to
+  # vary without breaking BC so long as the meaning of the shifted arguments
+  # do not change
+  $assert "$__spec_rexit" 2 "$@" <<< "$__spec_result" \
     || fail "$expect_full"
 
   __spec_caller=
