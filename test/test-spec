@@ -208,5 +208,46 @@ describe expect
       '; to succeed
     end
   end
+
+
+  describe and
+    # technically, we want this to be permitted after any declaration, but
+    # we do not yet support any others
+    it must appear after a "'to'" declaration
+      expect test-run <<< '
+        describe foo
+          it should fail
+            expect true
+              # missing "to"
+              and to succeed
+          end
+        end
+      '; to fail
+    end
+
+    it adds additional expectations to preceding declaration
+      # impossible condition
+      expect test-run <<< '
+        describe foo
+          it should fail
+            expect true
+              to succeed
+              and to fail
+          end
+        end
+      '; to fail
+
+      # redundant to demonstrate that it does not always fail
+      expect test-run <<< '
+        describe foo
+          it should fail
+            expect true
+              to succeed
+              and to succeed
+          end
+        end
+      '; to succeed
+    end
+  end
 end
 

@@ -175,6 +175,22 @@ to()
 
 
 ##
+# Declares additional expectations for the preceding premise
+and()
+{
+  __spec_caller="$(caller)"
+
+  # the most recently popped value should be an expect premise, implying
+  # that an expectation declaration implicitly popped it
+  _sstack-unpop
+  _sstack-assert-within :expect and $(caller) \
+    "follow an expectation as part of"
+
+  "$@"
+}
+
+
+##
 # Outputs failure details and exits
 #
 # TODO: This is a temporary implementation; we would like to list all
