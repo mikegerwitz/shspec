@@ -37,6 +37,7 @@ _bail_clause()
 _expect--succeed() { test "$1" -eq 0; }
 _expect--fail()    { test "$1" -ne 0; }
 
+
 _expect--output()
 {
   local -r cmp="$2"
@@ -52,5 +53,12 @@ _expect--output()
 
   # we will eventually be interested in this output
   diff <( echo $nl "$cmp" ) - &>/dev/null
+}
+
+
+_expect--match()
+{
+  local -r pat="$2"
+  [[ "$(cat)" =~ $pat ]]
 }
 

@@ -79,3 +79,29 @@ describe output
   end
 end
 
+
+describe match
+  it will default to asserting against stdout
+    expect _expect--match 0 "foo" <<< "foo"
+      to succeed
+  end
+
+  it ignores exit code
+    expect _expect--match 1 "foo" <<< "foo"
+      to succeed
+  end
+
+  it will perform partial match
+    expect _expect--match 0 "foo" <<< "contains foo"
+      to succeed
+  end
+
+  it will match against a pattern
+    expect _expect--match 0 "^foo.*baz" <<< "foo bar baz"
+      to succeed
+
+    expect _expect--match 0 "^foo.*baz" <<< "bar foo bar baz"
+      to fail
+  end
+end
+
