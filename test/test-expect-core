@@ -22,12 +22,12 @@
 
 describe succeed
   it will succeed when command exits with status code 0
-    expect _expect--succeed 0
+    expect _expect--succeed 0 2
       to succeed
   end
 
   it will fail when command exits with non-zero status code
-    expect _expect--succeed 1
+    expect _expect--succeed 1 2
       to fail
   end
 end
@@ -35,12 +35,12 @@ end
 
 describe fail
   it will succeed when command exits with non-zero status code
-    expect _expect--fail 1
+    expect _expect--fail 1 2
       to succeed
   end
 
   it will fail when command exits with status code 0
-    expect _expect--fail 0
+    expect _expect--fail 0 2
       to fail
   end
 end
@@ -48,33 +48,33 @@ end
 
 describe output
   it will default to asserting against stdout
-    expect _expect--output 0 "test string" <<< "test string"
+    expect _expect--output 0 2 "test string" <<< "test string"
       to succeed
   end
 
   it ignores exit code
-    expect _expect--output 1 "foo" <<< "foo"
+    expect _expect--output 1 2 "foo" <<< "foo"
       to succeed
   end
 
   it fails on output mismatch
-    expect _expect--output 0 "foo" <<< "bar"
+    expect _expect--output 0 2 "foo" <<< "bar"
       to fail
   end
 
   # as is good practice for Unix utilities
   it expects trailing newline by default
-    expect _expect--output 0 "foo" < <( echo -n foo )
+    expect _expect--output 0 2 "foo" < <( echo -n foo )
       to fail
   end
 
   it can disable trailing newline check with "'without newline'" clause
-    expect _expect--output 0 "foo" without newline < <( echo -n foo )
+    expect _expect--output 0 2 "foo" without newline < <( echo -n foo )
       to succeed
   end
 
   it errors on any unrecognized clause
-    expect _expect--output 0 "foo" fluffy bunnies <<< "foo"
+    expect _expect--output 0 2 "foo" fluffy bunnies <<< "foo"
       to fail
   end
 end
@@ -82,25 +82,25 @@ end
 
 describe match
   it will default to asserting against stdout
-    expect _expect--match 0 "foo" <<< "foo"
+    expect _expect--match 0 2 "foo" <<< "foo"
       to succeed
   end
 
   it ignores exit code
-    expect _expect--match 1 "foo" <<< "foo"
+    expect _expect--match 1 2 "foo" <<< "foo"
       to succeed
   end
 
   it will perform partial match
-    expect _expect--match 0 "foo" <<< "contains foo"
+    expect _expect--match 0 2 "foo" <<< "contains foo"
       to succeed
   end
 
   it will match against a pattern
-    expect _expect--match 0 "^foo.*baz" <<< "foo bar baz"
+    expect _expect--match 0 2 "^foo.*baz" <<< "foo bar baz"
       to succeed
 
-    expect _expect--match 0 "^foo.*baz" <<< "bar foo bar baz"
+    expect _expect--match 0 2 "^foo.*baz" <<< "bar foo bar baz"
       to fail
   end
 end

@@ -40,8 +40,9 @@ _expect--fail()    { test "$1" -ne 0; }
 
 _expect--output()
 {
-  local -r cmp="$2"
-  shift 2
+  shift "$2"
+  local -r cmp="$1"
+  shift
   local -r clause="$*"
 
   local nl=
@@ -58,7 +59,9 @@ _expect--output()
 
 _expect--match()
 {
-  local -r pat="$2"
+  shift "$2"
+  local -r pat="$1"
+
   [[ "$(cat)" =~ $pat ]]
 }
 
