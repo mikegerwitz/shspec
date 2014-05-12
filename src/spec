@@ -214,7 +214,8 @@ fail()
   echo
   echo "  exit code: $__spec_rexit"
 
-  exit 1
+  echo
+  _bail "expectation failure"
 }
 
 
