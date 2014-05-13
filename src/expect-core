@@ -56,6 +56,14 @@ __chk-nshift()
 }
 
 
+##
+# Purely gramatical to make certain expectations flow more naturally when
+# spoken
+#
+# For example, "to be silent".
+_expect--be() { _proxy-to "$@"; }
+
+
 _expect--succeed() { test "$1" -eq 0; }
 _expect--fail()    { test "$1" -ne 0; }
 

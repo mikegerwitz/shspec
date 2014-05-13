@@ -32,6 +32,9 @@ __INC_SPEC=1
 source specstack
 source expect-core
 
+# number of internal arguments before remainder clause
+declare -ir __SHIFTN=3
+
 
 ##
 # Attempts to make tempoary path in /dev/shm, falling back to default
@@ -156,12 +159,23 @@ to()
 
   [ $# -gt 0 ] || _bail "missing assertion string for \`to'" $__spec_caller
 
-  local -r expect_full="$*"
-  local -r type="$1"
-  shift
-
   _sstack-assert-follow :expect to $(caller)
   _sstack-pop
+
+  _handle-to "$@" || fail "$*"
+
+  __spec_caller=
+}
+
+
+##
+# Perform expectation assertion by invoking expectation handler
+#
+# Will throw an error if the handler cannot be found.
+_handle-to()
+{
+  local -r type="$1"
+  shift
 
   local -r assert="_expect--$type"
   type "$assert" &>/dev/null \
@@ -172,10 +186,22 @@ to()
   # output file, and all remaining arguments are said remainder clause; the
   # shift argument allows the implementation to vary without breaking BC so
   # long as the meaning of the shifted arguments do not change
-  $assert "$__spec_rexit" 3 "$__spec_errpath" "$@" <<< "$__spec_result" \
-    || fail "$expect_full"
+  $assert "$__spec_rexit" $__SHIFTN "$__spec_errpath" "$@" \
+      <<< "$__spec_result"
+}
 
-  __spec_caller=
+
+##
+# Proxies remainder clause to an expectation handler
+#
+# This is different than simply invoking `_handle-to` in that the former
+# expects to be called with arguments from an existing handler call (that
+# is, in need of shifting to access the remainder clause), where as the
+# latter assumes that its arguments are *only* the intended remainder clause
+_proxy-to()
+{
+  shift $__SHIFTN
+  _handle-to "$@"
 }
 
 

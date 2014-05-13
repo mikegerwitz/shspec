@@ -291,5 +291,34 @@ describe expect
       '; to succeed
     end
   end
+
+
+  describe be
+    it cannot stand alone
+      expect test-run <<< '
+        describe foo
+          it should fail
+            expect true
+              to be
+          end
+        end
+      '; to fail
+    end
+
+    it processes arguments as if it did not exist
+      expect test-run <<< '
+        expected="foo bar baz"
+        _expect--awesome() { shift "$2"; test "$*" == "$expected"; }
+
+        describe foo
+          it should succeed
+            expect true
+              # ignore the fact that this sounds awkward
+              to be awesome $expected
+          end
+        end
+      '; to succeed
+    end
+  end
 end
 
