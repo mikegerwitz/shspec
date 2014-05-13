@@ -22,6 +22,9 @@
 [ -z $__INC_EXPECT_CORE ] || return
 __INC_EXPECT_CORE=1
 
+# reserved for our uses
+exec 99<>/dev/null
+
 
 ##
 # Shorthand for bailing out on unrecognized clauses
