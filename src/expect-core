@@ -22,6 +22,8 @@
 [ -z $__INC_EXPECT_CORE ] || return
 __INC_EXPECT_CORE=1
 
+source util
+
 # reserved for our uses
 exec 99<>/dev/null
 
@@ -86,8 +88,7 @@ _expect--output()
     }
   } 99<&0
 
-  # long version in case pipefail isn't supported on the system
-  [ "${PIPESTATUS[0]}" -eq 0 -a "${PIPESTATUS[1]}" -eq 0 ]
+  aok "${PIPESTATUS[@]}"
 }
 
 __expect--output-clause()
