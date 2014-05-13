@@ -204,7 +204,7 @@ and()
 # later processing.
 fail()
 {
-  echo "expected $*" >&2
+  echo "expected to $*" >&2
 
   echo '  stdout:'
   sed 's/^/    /g' <<< "$__spec_result"
