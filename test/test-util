@@ -23,38 +23,48 @@ describe aok
   it succeeds for all zero values
     expect aok 0
       to succeed
+      and to be silent
 
     expect aok 0 0 0
       to succeed
+      and to be silent
   end
 
   it fails for any zero values
     expect aok 1
       to fail
+      and to be silent
 
     expect aok 1 0 0
       to fail
+      and to be silent
 
     expect aok 0 1 0
       to fail
+      and to be silent
 
     expect aok 0 0 1
       to fail
+      and to be silent
 
     expect aok 1 1 1
       to fail
+      and to be silent
   end
 
   # this surely implies a bug in the user's code
   it fails for any non-numeric values
     expect aok foo
       to fail
+      and to be silent
 
     expect aok 0 foo
       to fail
+      and to be silent
 
     expect aok foo 0
       to fail
+      and to be silent
   end
 end
 

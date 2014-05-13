@@ -42,7 +42,7 @@ aok()
   local -i i="${#arr[@]}"
 
   while ((i--)); do
-    test "${arr[i]}" -eq 0 || return 1
-  done
+    test "${arr[i]}" -eq 0 || return
+  done &>/dev/null
 }
 
