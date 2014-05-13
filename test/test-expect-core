@@ -52,14 +52,30 @@ describe output
       to succeed
   end
 
+  # by convention, stderr file passed as third argument
+  it can assert against stderr output
+    {
+      expect _expect--output 0 3 /dev/fd/3 \
+        "test stderr" on stderr
+        to succeed
+    } 3< <( echo "test stderr" )
+  end
+
+  it fails on stdout mismatch
+    expect _expect--output 0 2 "foo" <<< "bar"
+      to fail
+  end
+
+  it fails on stderr mismatch
+    {
+      expect _expect--output 0 3 /dev/fd/3 "foo" on stderr
+        to fail
+    } 3< <( echo bar )
+  end
+
   it ignores exit code
     expect _expect--output 1 2 "foo" <<< "foo"
       to succeed
-  end
-
-  it fails on output mismatch
-    expect _expect--output 0 2 "foo" <<< "bar"
-      to fail
   end
 
   # as is good practice for Unix utilities

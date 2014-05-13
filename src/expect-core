@@ -60,20 +60,57 @@ _expect--fail()    { test "$1" -ne 0; }
 
 _expect--output()
 {
-  shift "$2"
+  local -ri nshift="$2"
+  local -r stderr="$3"
+  shift "$nshift"
+
+  # output-specific clauses
   local -r cmp="$1"
   shift
-  local -r clause="$*"
+  local -ar clause=("$@")
+
+  local nl
+  local intype
+  {
+    __expect--output-clause "${clause[@]}" | {
+      IFS=\| read nl intype
+
+      if [ "$intype" == stderr ]; then
+        __chk-nshift 3 "$nshift"
+        exec 99<"$stderr"
+      fi
+
+      # we will eventually be interested in this output
+      # TODO: fast check first, diff if non-match
+      diff <( echo $nl "$cmp" ) - <&99 &>/dev/null
+    }
+  } 99<&0
+
+  # long version in case pipefail isn't supported on the system
+  [ "${PIPESTATUS[0]}" -eq 0 -a "${PIPESTATUS[1]}" -eq 0 ]
+}
+
+__expect--output-clause()
+{
+  [ $# -gt 0 ] || return 0
 
   local nl=
-  if [ -n "$clause" ]; then
-    [ "$clause" == 'without newline' ] \
-      && nl=-n \
-      || _bail_clause output "$clause"
+  local input=
+
+  if [ "$1 $2" == 'without newline' ]; then
+    nl=-n
+    shift 2
   fi
 
-  # we will eventually be interested in this output
-  diff <( echo $nl "$cmp" ) - &>/dev/null
+  if [ $# -gt 0 ]; then
+    if [[ "$1 $2" =~ ^on\ std(err|out) ]]; then
+      [ "$2" == stderr ] && input="$2"
+    else
+      _bail_clause output "$*"
+    fi
+  fi
+
+  echo "$nl|$input"
 }
 
 
