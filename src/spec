@@ -187,7 +187,7 @@ _handle-to()
   # shift argument allows the implementation to vary without breaking BC so
   # long as the meaning of the shifted arguments do not change
   $assert "$__spec_rexit" $__SHIFTN "$__spec_errpath" "$@" \
-      <<< "$__spec_result"
+    < <( echo -n "$__spec_result" )
 }
 
 

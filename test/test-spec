@@ -193,6 +193,21 @@ describe expect
         end
       '; to succeed
     end
+
+    # that is, if we use <<< to provide premise output from memory, a
+    # newline will be added; we don't want that!
+    it does not have newline added to premise output if missing
+      expect test-run <<< '
+        _expect--chk() { test "$( wc -c )" -eq 0; }
+
+        describe foo
+          it should not add newline
+            expect true
+              to chk
+          end
+        end
+      '; to succeed
+    end
   end
 
 
