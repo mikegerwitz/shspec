@@ -34,6 +34,23 @@ _bail_clause()
 }
 
 
+##
+# Asserts that at least the given argument shift count was provided
+#
+# The shift count is used to determine where shspec's arguments end and
+# where the remainder clause begins; this ensures that shspec can continue
+# to evolve in the future without BC breaks in properly designed expection
+# handlers.
+__chk-nshift()
+{
+  local -ri expect="$1"
+  local -ri given="$2"
+
+  test "$given" -ge "$expect" || _bail \
+    "internal: expected shift of at least $expect, but given $given"
+}
+
+
 _expect--succeed() { test "$1" -eq 0; }
 _expect--fail()    { test "$1" -ne 0; }
 

@@ -168,11 +168,11 @@ to()
     || _bail "unknown expectation: \`$type'" $__spec_caller
 
   # first argument is exit code, second is the number of arguments to shift
-  # to place $1 at the remainder clause, and all remaining arguments are
-  # said remainder clause; the shift argument allows the implementation to
-  # vary without breaking BC so long as the meaning of the shifted arguments
-  # do not change
-  $assert "$__spec_rexit" 2 "$@" <<< "$__spec_result" \
+  # to place $1 at the remainder clause, third is the path to the stderr
+  # output file, and all remaining arguments are said remainder clause; the
+  # shift argument allows the implementation to vary without breaking BC so
+  # long as the meaning of the shifted arguments do not change
+  $assert "$__spec_rexit" 3 "$__spec_errpath" "$@" <<< "$__spec_result" \
     || fail "$expect_full"
 
   __spec_caller=
