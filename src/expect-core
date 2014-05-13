@@ -131,3 +131,20 @@ _expect--match()
   [[ "$(cat)" =~ $pat ]]
 }
 
+
+##
+# Expects that both stdin and stderr (if available) are empty
+_expect--silent()
+{
+  local -r stderr="${3:-/dev/null}"
+  shift "$2"
+
+  # we accept no arguments
+  test $# -eq 0 || _bail_clause silent "$*"
+
+  # quick read using builtins; if we find any single byte, then we know that
+  # it is non-empty
+  read -N1 || read -N1 <"$stderr" || return 0
+  return 1
+}
+

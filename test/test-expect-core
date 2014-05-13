@@ -121,3 +121,37 @@ describe match
   end
 end
 
+
+describe silent
+  it succeeds when both stdout and stderr are empty
+    # omitting stderr arg
+    expect _expect--silent 0 2 < <(:)
+      to succeed
+
+    # empty stderr
+    expect _expect--silent 0 3 <(:) < <(:)
+      to succeed
+  end
+
+  it fails when stdout is empty but stderr is not
+  expect _expect--silent 0 3 <( echo ) < <(:)
+      to fail
+  end
+
+  it fails when stderr is empty but stdout is not
+    # omitting stderr arg
+    expect _expect--silent 0 2 <<< ""
+      to fail
+
+    # empty stderr
+    expect _expect--silent 0 3 <(:) <<< ""
+      to fail
+  end
+
+  # no arguments within context of the DSL, that is
+  it accepts no arguments
+  expect _expect--silent 0 2 foo < <(:)
+      to fail
+  end
+end
+
