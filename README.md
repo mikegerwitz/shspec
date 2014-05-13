@@ -10,7 +10,8 @@
 -->
 
 # shspec
-```
+```sh
+#!/bin/bash
 describe shspec
   it is a BDD framework for shell
     expect current-shell-support
