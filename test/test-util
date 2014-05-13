@@ -1,0 +1,60 @@
+#!/bin/bash
+# Utility function/procedure tests
+#
+#  Copyright (C) 2014 Mike Gewitz
+#
+#  This file is part of shspec.
+#
+#  shspec is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+describe aok
+  it succeeds for all zero values
+    expect aok 0
+      to succeed
+
+    expect aok 0 0 0
+      to succeed
+  end
+
+  it fails for any zero values
+    expect aok 1
+      to fail
+
+    expect aok 1 0 0
+      to fail
+
+    expect aok 0 1 0
+      to fail
+
+    expect aok 0 0 1
+      to fail
+
+    expect aok 1 1 1
+      to fail
+  end
+
+  # this surely implies a bug in the user's code
+  it fails for any non-numeric values
+    expect aok foo
+      to fail
+
+    expect aok 0 foo
+      to fail
+
+    expect aok foo 0
+      to fail
+  end
+end
+
