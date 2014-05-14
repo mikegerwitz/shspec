@@ -19,6 +19,23 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+describe be
+  it cannot stand alone
+    expect _expect--be 0 2
+      to fail
+  end
+
+  it processes remainder clause as if it did not exist
+    (
+      expected="foo bar baz"
+      _expect--awesome() { shift "$2"; test "$*" == "$expected"; }
+
+      expect _expect--be 0 2 awesome $expected
+        to succeed
+    )
+  end
+end
+
 
 describe succeed
   it will succeed when command exits with status code 0
