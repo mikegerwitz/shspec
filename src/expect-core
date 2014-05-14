@@ -64,10 +64,21 @@ __chk-nshift()
 _expect--be() { _proxy-to "$@"; }
 
 
+##
+# Basic success and failure (zero or non-zero exit code)
 _expect--succeed() { test "$1" -eq 0; }
 _expect--fail()    { test "$1" -ne 0; }
 
 
+##
+# Expect that the given string is output on stdout or stderr
+#
+# Defaults to asserting against stdout; behavior may be overridden with the
+# `on stderr' clause. Specifying `on stdout' may be used for clarity, but is
+# redundant.
+#
+# This expectation assumes a trailing newline by default; this behavior can
+# be suppressed with the `without newline' clause.
 _expect--output()
 {
   local -ri nshift="$2"
@@ -99,6 +110,7 @@ _expect--output()
   aok "${PIPESTATUS[@]}"
 }
 
+# parses output remainder clause according to the aforementioned rules
 __expect--output-clause()
 {
   [ $# -gt 0 ] || return 0
@@ -123,6 +135,9 @@ __expect--output-clause()
 }
 
 
+##
+# Expects that stdout matches the provided extended regular expression (as
+# in regex(3))
 _expect--match()
 {
   shift "$2"
