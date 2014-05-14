@@ -46,7 +46,7 @@ _bail_clause()
 # where the remainder clause begins; this ensures that shspec can continue
 # to evolve in the future without BC breaks in properly designed expection
 # handlers.
-__chk-nshift()
+__chk-shiftn()
 {
   local -ri expect="$1"
   local -ri given="$2"
@@ -81,9 +81,42 @@ _expect--fail()    { test "$1" -ne 0; }
 # be suppressed with the `without newline' clause.
 _expect--output()
 {
-  local -ri nshift="$2"
+  local -a args=("$@")
+  local -i shiftn="$2"
+  shift "$shiftn"
+  local -r cmp="$1"
+  shift
+  local nl
+
+  if [ $# -gt 0 ]; then
+    # this is not a common clause; process before generic parsing
+    if [ "$1 $2" == 'without newline' ]; then
+      nl=-n
+      unset args[$shiftn+1], args[$shiftn+2]
+    fi
+  fi
+
+  __expect--output-cmd "__expect--output-do -$nl" "${args[@]}"
+}
+
+__expect--output-do()
+{
+  local -r nl="${1:1}"
+  local -r cmp="$2"
+
+  # we will eventually be interested in this output
+  # TODO: fast check first, diff if non-match
+  diff <( echo $nl "$cmp" ) -
+}
+
+__expect--output-cmd()
+{
+  local -r cmd="$1"
+  shift
+
+  local -ri shiftn="$2"
   local -r stderr="$3"
-  shift "$nshift"
+  shift "$shiftn"
 
   # output-specific clauses
   local -r cmp="$1"
@@ -97,13 +130,11 @@ _expect--output()
       IFS=\| read nl intype
 
       if [ "$intype" == stderr ]; then
-        __chk-nshift 3 "$nshift"
+        __chk-shiftn 3 "$shiftn"
         exec 99<"$stderr"
       fi
 
-      # we will eventually be interested in this output
-      # TODO: fast check first, diff if non-match
-      diff <( echo $nl "$cmp" ) - <&99 &>/dev/null
+      $cmd "$cmp" <&99 &>/dev/null
     }
   } 99<&0
 
@@ -115,13 +146,7 @@ __expect--output-clause()
 {
   [ $# -gt 0 ] || return 0
 
-  local nl=
   local input=
-
-  if [ "$1 $2" == 'without newline' ]; then
-    nl=-n
-    shift 2
-  fi
 
   if [ $# -gt 0 ]; then
     if [[ "$1 $2" =~ ^on\ std(err|out) ]]; then
