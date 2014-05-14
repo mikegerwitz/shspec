@@ -119,6 +119,14 @@ describe match
       to succeed
   end
 
+  # by convention, stderr file passed as third argument
+  it can assert against stderr output
+    {
+      expect _expect--match 0 3 /dev/fd/3 "stderr" on stderr
+        to succeed
+    } 3< <( echo "test stderr" )
+  end
+
   it ignores exit code
     expect _expect--match 1 2 "foo" <<< "foo"
       to succeed

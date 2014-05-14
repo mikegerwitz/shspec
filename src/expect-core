@@ -165,9 +165,12 @@ __expect--output-clause()
 # in regex(3))
 _expect--match()
 {
-  shift "$2"
-  local -r pat="$1"
+  __expect--output-cmd '__expect--match-do' "$@"
+}
 
+__expect--match-do()
+{
+  local -r pat="$1"
   [[ "$(cat)" =~ $pat ]]
 }
 
