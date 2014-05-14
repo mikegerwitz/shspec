@@ -200,7 +200,7 @@ _handle-to()
 # latter assumes that its arguments are *only* the intended remainder clause
 _proxy-to()
 {
-  shift $__SHIFTN
+  shift "$2"
   _handle-to "$@"
 }
 

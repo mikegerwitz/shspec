@@ -335,5 +335,25 @@ describe expect
       '; to succeed
     end
   end
+
+
+  describe _proxy-to
+    it proxies remainder clause with variable shift length
+      expect test-run <<< '
+        expected="foo bar baz"
+        _expect--chk() { shift "$2"; test "$*" == "$expected"; }
+
+        describe foo
+          it should succeed
+            expect _proxy-to 0 2 chk $expected
+              to succeed
+
+            expect _proxy-to 0 3 /dev/null chk $expected
+              to succeed
+          end
+        end
+      '; to succeed
+    end
+  end
 end
 
