@@ -63,6 +63,19 @@ describe fail
 end
 
 
+describe not
+  it will invert the result of an expectation
+    # exit code of 1, so normally `succeed' would fail
+    expect _expect--not 1 2 succeed
+      to succeed
+
+    # exit code of 0, so normally `succeed' would succeed
+    expect _expect--not 0 2 succeed
+      to fail
+  end
+end
+
+
 describe output
   it will default to asserting against stdout
     expect _expect--output 0 2 "test string" <<< "test string"
