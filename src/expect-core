@@ -66,3 +66,8 @@ _expect--be() { _proxy-to "$@"; }
 _expect--succeed() { test "$1" -eq 0; }
 _expect--fail()    { test "$1" -ne 0; }
 
+
+##
+# Inverts the result of an expectation represented by the remainder clause
+_expect--not() { ! _proxy-to "$@"; }
+
