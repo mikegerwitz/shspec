@@ -162,7 +162,8 @@ to()
   _sstack-assert-follow :expect to $(caller)
   _sstack-pop
 
-  _handle-to "$@" || fail "$*"
+  __handle-to "$__spec_rexit" $__SHIFTN "$__spec_errpath" "$@" \
+    || fail "$*"
 
   __spec_caller=
 }
@@ -171,9 +172,18 @@ to()
 ##
 # Perform expectation assertion by invoking expectation handler
 #
-# Will throw an error if the handler cannot be found.
-_handle-to()
+# Will throw an error if the handler cannot be found. Arguments are expected
+# to be of the following form:
+#
+#   <exit code> <shiftn> <...N> <expect type> <...remainder clause>
+#
+__handle-to()
 {
+  local -ri rexit="$1"
+  local -ri shiftn="$2"
+  local -r errpath="$( [ $shiftn -gt 2 ] && echo "$3" )"
+  shift "$shiftn"
+
   local -r type="$1"
   shift
 
@@ -186,23 +196,16 @@ _handle-to()
   # output file, and all remaining arguments are said remainder clause; the
   # shift argument allows the implementation to vary without breaking BC so
   # long as the meaning of the shifted arguments do not change
-  $assert "$__spec_rexit" $__SHIFTN "$__spec_errpath" "$@" \
+  $assert $rexit $__SHIFTN "$errpath" "$@" \
     < <( echo -n "$__spec_result" )
 }
 
 
 ##
-# Proxies remainder clause to an expectation handler
+# Alias for _handle-to
 #
-# This is different than simply invoking `_handle-to` in that the former
-# expects to be called with arguments from an existing handler call (that
-# is, in need of shifting to access the remainder clause), where as the
-# latter assumes that its arguments are *only* the intended remainder clause
-_proxy-to()
-{
-  shift "$2"
-  _handle-to "$@"
-}
+# Shows intent to proxy a call and allows proxy implementation to vary.
+_proxy-to() { __handle-to "$@"; }
 
 
 ##
