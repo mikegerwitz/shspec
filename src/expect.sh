@@ -23,6 +23,7 @@
 __INC_EXPECT_CORE=1
 
 source expect/output.sh
+source expect/env.sh
 
 
 ##
