@@ -24,6 +24,8 @@ source spec
 declare -r tcase="${1?Missing test case path}"
 
 _begin-spec
-  source "$tcase" || exit $?
+  cd "$( dirname "$tcase" )" \
+    && source "$tcase" \
+    || exit $?
 _end-spec
 

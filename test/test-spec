@@ -34,7 +34,7 @@
 # This will take an arbitrary script from stdin and execute it
 test-run()
 {
-  ../src/run-spec <( cat )
+  ( cd ../src && ./run-spec <( cat ) )
 }
 
 
