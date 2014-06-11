@@ -29,13 +29,18 @@ __INC_EXPECT_ENV=1
 #
 __expect-env()
 {
-  local -r flag="$1" var="$2" cmp="$3"
+  local -r expflags="$1" var="$2" cmp="$3"
   shift 3
   local -r expect="$@"
 
   # TODO: support escaped newlines
   local flags val
   __read-env-line "$var" flags val < "$envpath"
+
+  # perform flag assertion if requested
+  test -n "$expflags" && {
+    [[ "$flags" =~ [$expflags] ]] || return 1
+  }
 
   # cannot quote regex without causing problems, and [[ syntax does not
   # allow a variable comparison operator; further, argument order varies
@@ -98,5 +103,24 @@ _expect--set()
 _expect--declare()
 {
   _expect--set "$@"
+}
+
+
+##
+# Checks that a variable is exported with the given value
+#
+# Same syntax as `set`
+#
+_expect--export()
+{
+  local -ri shiftn="$2"
+  local -r  envpath="$4"
+  shift "$shiftn"
+
+  # ensure envpath is available
+  __chk-shiftn 4 "$shiftn"
+
+  # expect the -x flag, which denotes export
+  __expect-env x "$@"
 }
 

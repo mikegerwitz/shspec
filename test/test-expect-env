@@ -20,10 +20,11 @@
 ##
 
 declare -r stubenv='
-declare -- var="val"
-declare -- long="foo bar baz"
-declare -- empty=""
-declare -- one="1"'
+declare -x -- var="val"
+declare -x -- long="foo bar baz"
+declare -x -- empty=""
+declare -x -- one="1"
+declare -- nonexport=""'
 
 
 declare curchk
@@ -34,10 +35,10 @@ function setchk()
 
 
 # we have a few different expectations that have the same syntax
-for name in set declare; do
+for name in set declare export; do
   curchk=$name
 
-  describe set
+  describe "$name"
     describe = and == operators
       it succeeds on string equality
         expect setchk var = val
@@ -209,6 +210,13 @@ for name in set declare; do
       expect setchk var "!= foo -a 1 -eq" 1
         to fail
     end
+
+    if [ "$name" == export ]; then
+      it fails when variable is not exported
+        expect setchk nonexport -z
+          to fail
+      end
+    fi
   end
 done
 
