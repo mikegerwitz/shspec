@@ -33,6 +33,7 @@ function setchk()
 }
 
 
+# we have a few different expectations that have the same syntax
 for name in set declare; do
   curchk=$name
 

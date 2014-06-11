@@ -24,27 +24,18 @@ __INC_EXPECT_ENV=1
 
 
 ##
-# Expect that an environment variable is set to a particular value
+# Expect that an environment variable is set to a particular value, or
+# assert on flags
 #
-# The variable need not be exported.
-#
-_expect--set()
+__expect-env()
 {
-  local -ri shiftn="$2"
-  local -r  envpath="$4"
-  shift "$shiftn"
-
-  # ensure envpath is available
-  __chk-shiftn 4 "$shiftn"
-
-  local -r var="$1" cmp="$2"
-  shift 2
+  local -r flag="$1" var="$2" cmp="$3"
+  shift 3
   local -r expect="$@"
 
-  # TODO: support escaped newlines; use awk (do not source the file)
-  local -r line="$( grep "^declare \.*-- $var=" "$envpath" )"
-  local -r valq="${line##*=\"}"
-  local -r val="${valq%%\"}"
+  # TODO: support escaped newlines
+  local flags val
+  __read-env-line "$var" flags val < "$envpath"
 
   # cannot quote regex without causing problems, and [[ syntax does not
   # allow a variable comparison operator; further, argument order varies
@@ -62,6 +53,42 @@ _expect--set()
 
     *) false;;
   esac
+}
+
+
+##
+# Parse environment line (from `declare`) into flag and value variables
+#
+# Expected output is of the form:
+#   declare -flags? -- var="val"
+#
+__read-env-line()
+{
+  local -r var="$1" destflag="$2" destval="$3"
+
+  read $destflag $destval < <(
+    awk '
+      match( $0, /^declare (-([a-z]+) )?-- '$var'="(.*)"$/, m ) {
+        print "-" m[2], m[3]
+    }'
+  )
+}
+
+
+##
+# Expect that an environment variable has been set to a certain value
+#
+_expect--set()
+{
+  local -ri shiftn="$2"
+  local -r  envpath="$4"
+  shift "$shiftn"
+
+  # ensure envpath is available
+  __chk-shiftn 4 "$shiftn"
+
+  # no flag expectation
+  __expect-env '' "$@"
 }
 
 
