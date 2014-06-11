@@ -56,6 +56,13 @@ __expect-env()
     =|==|!=|-eq|-ne|-lt|-le|-gt|-ge)
       test "$val" $cmp "$expect";;
 
+    # at this point, if we have succeeded in performing flag tests, then we
+    # will always pass; otherwise, if no such tests were performed, then we
+    # fall back to the conventional non-empty check
+    '')
+      test -n "$expflags" -o -n "$val";;
+
+    # TODO: provide error description
     *) false;;
   esac
 }

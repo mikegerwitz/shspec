@@ -24,7 +24,8 @@ declare -x -- var="val"
 declare -x -- long="foo bar baz"
 declare -x -- empty=""
 declare -x -- one="1"
-declare -- nonexport=""'
+declare -- nonexport="moo"
+declare -- nonexport_empty=""'
 
 
 declare curchk
@@ -213,8 +214,42 @@ for name in set declare export; do
 
     if [ "$name" == export ]; then
       it fails when variable is not exported
-        expect setchk nonexport -z
+        expect setchk nonexport
           to fail
+      end
+
+      describe in absence of any operator
+        it succeeds on exported, non-empty var
+          expect setchk var
+            to succeed
+        end
+
+        it succeeds on exported empty var
+          expect setchk empty
+            to succeed
+        end
+
+        it fails on non-exported, non-empty var
+          expect setchk nonexport
+            to fail
+        end
+
+        it fails on non-exported empty var
+          expect setchk nonexport_empty
+            to fail
+        end
+      end
+    else
+      describe in absence of any operator
+        it succeeds on non-empty string
+          expect setchk var
+            to succeed
+        end
+
+        it fails on empty string
+          expect setchk empty
+            to fail
+        end
       end
     fi
   end
