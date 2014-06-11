@@ -64,3 +64,12 @@ _expect--set()
   esac
 }
 
+
+##
+# Alias for `set`
+#
+_expect--declare()
+{
+  _expect--set "$@"
+}
+
