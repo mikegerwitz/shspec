@@ -1,0 +1,257 @@
+#!/bin/bash
+# Environment expectation tests
+#
+#  Copyright (C) 2014 Mike Gewitz
+#
+#  This file is part of shspec.
+#
+#  shspec is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+declare -r stubenv='
+declare -x -- var="val"
+declare -x -- long="foo bar baz"
+declare -x -- empty=""
+declare -x -- one="1"
+declare -- nonexport="moo"
+declare -- nonexport_empty=""'
+
+
+declare curchk
+function setchk()
+{
+  _expect--$curchk 0 4 <(:) <( echo "$stubenv" ) "$@"
+}
+
+
+# we have a few different expectations that have the same syntax
+for name in set declare export; do
+  curchk=$name
+
+  describe "$name"
+    describe = and == operators
+      it succeeds on string equality
+        expect setchk var = val
+          to succeed
+
+        expect setchk var == val
+          to succeed
+      end
+
+      it fails on string inequality
+        expect setchk var = unval
+          to fail
+
+        expect setchk var == unval
+          to fail
+      end
+    end
+
+
+    describe != operator
+      it succeeds on string inequality
+        expect setchk var != foo
+          to succeed
+      end
+
+      it fails on string equality
+        expect setchk var != val
+          to fail
+      end
+    end
+
+
+    describe =~ operator
+      it succeeds on a match
+        expect setchk \
+          long =~ fo+ ba. baz\$
+          to succeed
+      end
+
+      # note that this also ensures that *all* arguments are part of the
+      # match
+      it fails on a mismatch
+        expect setchk \
+          long =~ fo+ baX baz\$
+          to fail
+      end
+    end
+
+
+    describe -n operator
+      it succeeds when string is non-empty
+        expect setchk var -n
+          to succeed
+      end
+
+      it fails when string is empty
+        expect setchk empty -n
+          to fail
+      end
+    end
+
+
+    describe -z operator
+      it succeeds when string is empty
+        expect setchk empty -z
+          to succeed
+      end
+
+      it fails when string is non-empty
+        expect setchk var -z
+          to fail
+      end
+    end
+
+
+    describe -eq operator
+      it succeeds on numeric equality
+        expect setchk one -eq 1
+          to succeed
+      end
+
+      it fails on numeric inequality
+        expect setchk one -eq 2
+          to fail
+      end
+    end
+
+
+    describe -gt operator
+      it succeeds when numerically greater
+        expect setchk one -gt 0
+          to succeed
+      end
+
+      it fails when not numerically greater
+        expect setchk one -gt 1
+          to fail
+      end
+    end
+
+
+    describe -ge operator
+      it succeeds when numerically greater
+        expect setchk one -ge 0
+          to succeed
+      end
+
+      it succeeds when numerically equal
+        expect setchk one -ge 1
+          to succeed
+      end
+
+      it fails when numerically less than
+        expect setchk one -ge 2
+          to fail
+      end
+    end
+
+
+    describe -lt operator
+      it succeeds when numerically less than
+        expect setchk one -lt 2
+          to succeed
+      end
+
+      it fails when not numerically less than
+        expect setchk one -lt 1
+          to fail
+      end
+    end
+
+
+    describe -le operator
+      it succeeds when numerically less than
+        expect setchk one -le 2
+          to succeed
+      end
+
+      it succeeds when numerically equal
+        expect setchk one -le 1
+          to succeed
+      end
+
+      it fails when numerically greater than
+        expect setchk one -le 0
+          to fail
+      end
+    end
+
+
+    describe -ne operator
+      it succeeds when numerically unequal
+        expect setchk one -ne 2
+          to succeed
+      end
+
+      it fails when numerically equal
+        expect setchk one -ne 1
+          to fail
+      end
+    end
+
+
+    # primarily for safety and strict documentation, but no other tests make
+    # sense at the moment
+    it fails on unrecognized operators
+      # shell injection (not that this is realistically a problem, because
+      # we can execute arbitrary shell code anyway)
+      expect setchk var "!= foo -a 1 -eq" 1
+        to fail
+    end
+
+    if [ "$name" == export ]; then
+      it fails when variable is not exported
+        expect setchk nonexport
+          to fail
+      end
+
+      describe in absence of any operator
+        it succeeds on exported, non-empty var
+          expect setchk var
+            to succeed
+        end
+
+        it succeeds on exported empty var
+          expect setchk empty
+            to succeed
+        end
+
+        it fails on non-exported, non-empty var
+          expect setchk nonexport
+            to fail
+        end
+
+        it fails on non-exported empty var
+          expect setchk nonexport_empty
+            to fail
+        end
+      end
+    else
+      describe in absence of any operator
+        it succeeds on non-empty string
+          expect setchk var
+            to succeed
+        end
+
+        it fails on empty string
+          expect setchk empty
+            to fail
+        end
+      end
+    fi
+  end
+done
+

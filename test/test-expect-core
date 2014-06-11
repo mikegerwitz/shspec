@@ -188,7 +188,7 @@ describe silent
 
   # no arguments within context of the DSL, that is
   it accepts no arguments
-  expect _expect--silent 0 2 foo < <(:)
+    expect _expect--silent 0 2 foo < <(:)
       to fail
   end
 end

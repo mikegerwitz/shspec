@@ -33,7 +33,7 @@ source specstack.sh
 source expect.sh
 
 # number of internal arguments before remainder clause
-declare -ir __SHIFTN=3
+declare -ir __SHIFTN=4
 
 
 ##
@@ -47,6 +47,9 @@ mktemp-shm()
 
 # stderr file
 declare -r __spec_errpath="$(mktemp-shm)"
+
+# env dump file
+declare -r __spec_envpath="$(mktemp-shm)"
 
 # most recent expect result and its exit code
 declare __spec_result=
@@ -162,7 +165,8 @@ to()
   _sstack-assert-follow :expect to $(caller)
   _sstack-pop
 
-  __handle-to "$__spec_rexit" $__SHIFTN "$__spec_errpath" "$@" \
+  __handle-to "$__spec_rexit" $__SHIFTN \
+    "$__spec_errpath" "$__spec_envpath" "$@" \
     || fail "$*"
 
   __spec_caller=
@@ -182,6 +186,7 @@ __handle-to()
   local -ri rexit="$1"
   local -ri shiftn="$2"
   local -r errpath="$( [ $shiftn -gt 2 ] && echo "$3" )"
+  local -r envpath="$( [ $shiftn -gt 3 ] && echo "$4" )"
   shift "$shiftn"
 
   local -r type="$1"
@@ -196,7 +201,7 @@ __handle-to()
   # output file, and all remaining arguments are said remainder clause; the
   # shift argument allows the implementation to vary without breaking BC so
   # long as the meaning of the shifted arguments do not change
-  $assert $rexit $__SHIFTN "$errpath" "$@" \
+  $assert $rexit $__SHIFTN "$errpath" "$envpath" "$@" \
     < <( echo -n "$__spec_result" )
 }
 
