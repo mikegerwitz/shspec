@@ -29,8 +29,8 @@
 [ -z $__INC_SPEC ] || return
 __INC_SPEC=1
 
-source specstack
-source expect-core
+source specstack.sh
+source expect.sh
 
 # number of internal arguments before remainder clause
 declare -ir __SHIFTN=3

@@ -22,7 +22,7 @@
 [ -z $__INC_EXPECT_OUTPUT ] || return
 __INC_EXPECT_OUTPUT=1
 
-source util
+source util.sh
 
 # reserved for our uses
 exec 99<>/dev/null

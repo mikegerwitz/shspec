@@ -22,7 +22,7 @@
 [ -z $__INC_EXPECT_CORE ] || return
 __INC_EXPECT_CORE=1
 
-source expect/output
+source expect/output.sh
 
 
 ##
