@@ -45,7 +45,7 @@ exec 99<>/dev/null
 #
 # This command is successful if and only if both the remainder clause and
 # the provided command line complete successfully.
-__expect-output-cmd()
+shspec::expect::__output-cmd()
 {
   local -r cmd="$1"
   shift
@@ -62,11 +62,11 @@ __expect-output-cmd()
   local nl
   local intype
   {
-    __expect-output-clause "${clause[@]}" | {
+    shspec::expect::__output-clause "${clause[@]}" | {
       IFS=\| read nl intype
 
       if [ "$intype" == stderr ]; then
-        __chk-shiftn 3 "$shiftn"
+        shspec::_chk-shiftn 3 "$shiftn"
         exec 99<"$stderr"
       fi
 
@@ -78,7 +78,7 @@ __expect-output-cmd()
 }
 
 # parses output remainder clause according to the aforementioned rules
-__expect-output-clause()
+shspec::expect::__output-clause()
 {
   [ $# -gt 0 ] || return 0
 
@@ -88,7 +88,7 @@ __expect-output-clause()
     if [[ "$1 $2" =~ ^on\ std(err|out) ]]; then
       [ "$2" == stderr ] && input="$2"
     else
-      _bail_clause output "$*"
+      shspec::bail-clause output "$*"
     fi
   fi
 
@@ -105,7 +105,7 @@ __expect-output-clause()
 #
 # This expectation assumes a trailing newline by default; this behavior can
 # be suppressed with the `without newline' clause.
-_expect--output()
+shspec::expect::output()
 {
   local -a args=("$@")
   local -i shiftn="$2"
@@ -122,10 +122,11 @@ _expect--output()
     fi
   fi
 
-  __expect-output-cmd "__expect--output-do -$nl" "${args[@]}"
+  shspec::expect::__output-cmd "shspec::expect::__output-do -$nl" \
+    "${args[@]}"
 }
 
-__expect--output-do()
+shspec::expect::__output-do()
 {
   local -r nl="${1:1}"
   local -r cmp="$2"
@@ -139,12 +140,12 @@ __expect--output-do()
 ##
 # Expects that stdout matches the provided extended regular expression (as
 # in regex(3))
-_expect--match()
+shspec::expect::match()
 {
-  __expect-output-cmd '__expect--match-do' "$@"
+  shspec::expect::__output-cmd 'shspec::expect::__match-do' "$@"
 }
 
-__expect--match-do()
+shspec::expect::__match-do()
 {
   local -r pat="$1"
   [[ "$(cat)" =~ $pat ]]
@@ -153,13 +154,13 @@ __expect--match-do()
 
 ##
 # Expects that both stdin and stderr (if available) are empty
-_expect--silent()
+shspec::expect::silent()
 {
   local -r stderr="${3:-/dev/null}"
   shift "$2"
 
   # we accept no arguments
-  test $# -eq 0 || _bail_clause silent "$*"
+  test $# -eq 0 || shspec::bail-clause silent "$*"
 
   # quick read using builtins; if we find any single byte, then we know that
   # it is non-empty

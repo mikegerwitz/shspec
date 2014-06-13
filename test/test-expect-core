@@ -21,16 +21,16 @@
 
 describe be
   it cannot stand alone
-    expect _expect--be 0 2
+    expect shspec::expect::be 0 2
       to fail
   end
 
   it processes remainder clause as if it did not exist
     (
       expected="foo bar baz"
-      _expect--awesome() { shift "$2"; test "$*" == "$expected"; }
+      shspec::expect::awesome() { shift "$2"; test "$*" == "$expected"; }
 
-      expect _expect--be 0 2 awesome $expected
+      expect shspec::expect::be 0 2 awesome $expected
         to succeed
     )
   end
@@ -39,12 +39,12 @@ end
 
 describe succeed
   it will succeed when command exits with status code 0
-    expect _expect--succeed 0 2
+    expect shspec::expect::succeed 0 2
       to succeed
   end
 
   it will fail when command exits with non-zero status code
-    expect _expect--succeed 1 2
+    expect shspec::expect::succeed 1 2
       to fail
   end
 end
@@ -52,12 +52,12 @@ end
 
 describe fail
   it will succeed when command exits with non-zero status code
-    expect _expect--fail 1 2
+    expect shspec::expect::fail 1 2
       to succeed
   end
 
   it will fail when command exits with status code 0
-    expect _expect--fail 0 2
+    expect shspec::expect::fail 0 2
       to fail
   end
 end
@@ -66,11 +66,11 @@ end
 describe not
   it will invert the result of an expectation
     # exit code of 1, so normally `succeed' would fail
-    expect _expect--not 1 2 succeed
+    expect shspec::expect::not 1 2 succeed
       to succeed
 
     # exit code of 0, so normally `succeed' would succeed
-    expect _expect--not 0 2 succeed
+    expect shspec::expect::not 0 2 succeed
       to fail
   end
 end
@@ -78,49 +78,50 @@ end
 
 describe output
   it will default to asserting against stdout
-    expect _expect--output 0 2 "test string" <<< "test string"
+    expect shspec::expect::output 0 2 "test string" <<< "test string"
       to succeed
   end
 
   # by convention, stderr file passed as third argument
   it can assert against stderr output
     {
-      expect _expect--output 0 3 /dev/fd/3 \
+      expect shspec::expect::output 0 3 /dev/fd/3 \
         "test stderr" on stderr
         to succeed
     } 3< <( echo "test stderr" )
   end
 
   it fails on stdout mismatch
-    expect _expect--output 0 2 "foo" <<< "bar"
+    expect shspec::expect::output 0 2 "foo" <<< "bar"
       to fail
   end
 
   it fails on stderr mismatch
     {
-      expect _expect--output 0 3 /dev/fd/3 "foo" on stderr
+      expect shspec::expect::output 0 3 /dev/fd/3 "foo" on stderr
         to fail
     } 3< <( echo bar )
   end
 
   it ignores exit code
-    expect _expect--output 1 2 "foo" <<< "foo"
+    expect shspec::expect::output 1 2 "foo" <<< "foo"
       to succeed
   end
 
   # as is good practice for Unix utilities
   it expects trailing newline by default
-    expect _expect--output 0 2 "foo" < <( echo -n foo )
+    expect shspec::expect::output 0 2 "foo" < <( echo -n foo )
       to fail
   end
 
   it can disable trailing newline check with "'without newline'" clause
-    expect _expect--output 0 2 "foo" without newline < <( echo -n foo )
+    expect shspec::expect::output 0 2 "foo" without newline \
+      < <( echo -n foo )
       to succeed
   end
 
   it errors on any unrecognized clause
-    expect _expect--output 0 2 "foo" fluffy bunnies <<< "foo"
+    expect shspec::expect::output 0 2 "foo" fluffy bunnies <<< "foo"
       to fail
   end
 end
@@ -128,33 +129,33 @@ end
 
 describe match
   it will default to asserting against stdout
-    expect _expect--match 0 2 "foo" <<< "foo"
+    expect shspec::expect::match 0 2 "foo" <<< "foo"
       to succeed
   end
 
   # by convention, stderr file passed as third argument
   it can assert against stderr output
     {
-      expect _expect--match 0 3 /dev/fd/3 "stderr" on stderr
+      expect shspec::expect::match 0 3 /dev/fd/3 "stderr" on stderr
         to succeed
     } 3< <( echo "test stderr" )
   end
 
   it ignores exit code
-    expect _expect--match 1 2 "foo" <<< "foo"
+    expect shspec::expect::match 1 2 "foo" <<< "foo"
       to succeed
   end
 
   it will perform partial match
-    expect _expect--match 0 2 "foo" <<< "contains foo"
+    expect shspec::expect::match 0 2 "foo" <<< "contains foo"
       to succeed
   end
 
   it will match against a pattern
-    expect _expect--match 0 2 "^foo.*baz" <<< "foo bar baz"
+    expect shspec::expect::match 0 2 "^foo.*baz" <<< "foo bar baz"
       to succeed
 
-    expect _expect--match 0 2 "^foo.*baz" <<< "bar foo bar baz"
+    expect shspec::expect::match 0 2 "^foo.*baz" <<< "bar foo bar baz"
       to fail
   end
 end
@@ -163,32 +164,32 @@ end
 describe silent
   it succeeds when both stdout and stderr are empty
     # omitting stderr arg
-    expect _expect--silent 0 2 < <(:)
+    expect shspec::expect::silent 0 2 < <(:)
       to succeed
 
     # empty stderr
-    expect _expect--silent 0 3 <(:) < <(:)
+    expect shspec::expect::silent 0 3 <(:) < <(:)
       to succeed
   end
 
   it fails when stdout is empty but stderr is not
-  expect _expect--silent 0 3 <( echo ) < <(:)
+  expect shspec::expect::silent 0 3 <( echo ) < <(:)
       to fail
   end
 
   it fails when stderr is empty but stdout is not
     # omitting stderr arg
-    expect _expect--silent 0 2 <<< ""
+    expect shspec::expect::silent 0 2 <<< ""
       to fail
 
     # empty stderr
-    expect _expect--silent 0 3 <(:) <<< ""
+    expect shspec::expect::silent 0 3 <(:) <<< ""
       to fail
   end
 
   # no arguments within context of the DSL, that is
   it accepts no arguments
-    expect _expect--silent 0 2 foo < <(:)
+    expect shspec::expect::silent 0 2 foo < <(:)
       to fail
   end
 end

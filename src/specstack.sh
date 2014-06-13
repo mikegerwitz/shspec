@@ -148,7 +148,8 @@ _sstack-assert-within()
   local -r head="$(_sstack-head-type)"
 
   [ "$head" == "$in" ] \
-    || _bail "\`$chk' must $phrase \`$head'; found \`$head' at $file:$line"
+    || shspec::bail \
+      "\`$chk' must $phrase \`$head'; found \`$head' at $file:$line"
 }
 
 
