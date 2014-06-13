@@ -78,12 +78,12 @@ shspec::begin-spec()
 shspec::end-spec()
 {
   # if the stack is empty then everything is in order
-  _sstack-empty && return 0
+  shspec::stack::_empty && return 0
 
   # otherwise, output an error message for each item in the stack
-  until _sstack-empty; do
-    _sstack-read type line file _ < <(_sstack-head)
-    _sstack-pop
+  until shspec::stack::_empty; do
+    shspec::stack::_read type line file _ < <(shspec::stack::_head)
+    shspec::stack::_pop
     echo "error: unterminated \`$type' at $file:$line"
   done
 
@@ -100,7 +100,7 @@ shspec::end-spec()
 describe()
 {
   local -r desc="$*"
-  _sstack-push "describe" $(caller) "$desc"
+  shspec::stack::_push "describe" $(caller) "$desc"
 }
 
 
@@ -111,7 +111,7 @@ describe()
 it()
 {
   local -r desc="$*"
-  _sstack-push "it" $(caller) "$desc"
+  shspec::stack::_push "it" $(caller) "$desc"
 }
 
 
@@ -122,7 +122,7 @@ it()
 # should not use this command.
 end()
 {
-  local -r head="$(_sstack-head-type)"
+  local -r head="$(shspec::stack::_head-type)"
   local -r cleanhead="$head"
 
   # some statements are implicitly terminated; explicitly doing so is
@@ -131,7 +131,7 @@ end()
     || shspec::bail \
       "unexpected \`end': still processing \`$cleanhead'" $(caller)
 
-  _sstack-pop >/dev/null || shspec::bail "unmatched \`end'"
+  shspec::stack::_pop >/dev/null || shspec::bail "unmatched \`end'"
 }
 
 
@@ -145,10 +145,10 @@ end()
 # That is, this declares "given this command, I can expect that..."
 expect()
 {
-  _sstack-assert-within it expect $(caller)
+  shspec::stack::_assert-within it expect $(caller)
   __spec_result="$("$@" 2>"$__spec_errpath")"
   __spec_rexit=$?
-  _sstack-push :expect $(caller) "$@"
+  shspec::stack::_push :expect $(caller) "$@"
 }
 
 
@@ -164,8 +164,8 @@ to()
   [ $# -gt 0 ] || \
     shspec::bail "missing assertion string for \`to'" $__spec_caller
 
-  _sstack-assert-follow :expect to $(caller)
-  _sstack-pop
+  shspec::stack::_assert-follow :expect to $(caller)
+  shspec::stack::_pop
 
   shspec::__handle-to "$__spec_rexit" $__SHIFTN \
     "$__spec_errpath" "$__spec_envpath" "$@" \
@@ -223,8 +223,8 @@ and()
 
   # the most recently popped value should be an expect premise, implying
   # that an expectation declaration implicitly popped it
-  _sstack-unpop
-  _sstack-assert-within :expect and $(caller) \
+  shspec::stack::_unpop
+  shspec::stack::_assert-within :expect and $(caller) \
     "follow an expectation as part of"
 
   "$@"
