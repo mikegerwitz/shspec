@@ -1,7 +1,7 @@
 <!--
   Copyright (C) 2014 Mike Gerwitz
 
-  This file is part of GNU shspec.js.
+  This file is part of shspec.
 
   Copying and distribution of this file, with or without modification, are
   permitted in any medium without royalty provided the copyright notice and
@@ -33,4 +33,14 @@ describe shspec
   end
 end
 ```
+
+## License
+shspec is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
