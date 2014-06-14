@@ -19,8 +19,15 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
+declare -i fail=0
+
 # each test is run in a separate process to ensure environment isolation
 for tcase in "$@"; do
-  env -i ./run-spec "$tcase"
+  env -i ./run-spec "$tcase" || {
+    echo "failed: $tcase" >&2
+    fail=1
+  }
 done
+
+test $fail -eq 0
 
