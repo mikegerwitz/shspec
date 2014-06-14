@@ -38,7 +38,7 @@ declare -ir __SHIFTN=4
 
 ##
 # Attempts to make tempoary path in /dev/shm, falling back to default
-mktemp-shm()
+shspec::__mktemp-shm()
 {
   local -r shm=/dev/shm
   [ -d $shm -a -r $shm ] && mktemp -p$shm || mktemp
@@ -46,10 +46,10 @@ mktemp-shm()
 
 
 # stderr file
-declare -r __spec_errpath="$(mktemp-shm)"
+readonly __spec_errpath="$(shspec::__mktemp-shm)"
 
 # env dump file
-declare -r __spec_envpath="$(mktemp-shm)"
+readonly __spec_envpath="$(shspec::__mktemp-shm)"
 
 # most recent expect result and its exit code
 declare __spec_result=
@@ -64,7 +64,7 @@ declare __spec_caller=
 #
 # A specification is any shell script using the specification commands
 # defined herein.
-_begin-spec()
+shspec::begin-spec()
 {
   : placeholder
 }
@@ -75,15 +75,15 @@ _begin-spec()
 #
 # If the specification was improperly nested, this will output a list of
 # nesting errors and return a non-zero error. Otherwise, nothing is done.
-_end-spec()
+shspec::end-spec()
 {
   # if the stack is empty then everything is in order
-  _sstack-empty && return 0
+  shspec::stack::_empty && return 0
 
   # otherwise, output an error message for each item in the stack
-  until _sstack-empty; do
-    _sstack-read type line file _ < <(_sstack-head)
-    _sstack-pop
+  until shspec::stack::_empty; do
+    shspec::stack::_read type line file _ < <(shspec::stack::_head)
+    shspec::stack::_pop
     echo "error: unterminated \`$type' at $file:$line"
   done
 
@@ -100,7 +100,7 @@ _end-spec()
 describe()
 {
   local -r desc="$*"
-  _sstack-push "describe" $(caller) "$desc"
+  shspec::stack::_push "describe" $(caller) "$desc"
 }
 
 
@@ -111,7 +111,7 @@ describe()
 it()
 {
   local -r desc="$*"
-  _sstack-push "it" $(caller) "$desc"
+  shspec::stack::_push "it" $(caller) "$desc"
 }
 
 
@@ -122,15 +122,16 @@ it()
 # should not use this command.
 end()
 {
-  local -r head="$(_sstack-head-type)"
+  local -r head="$(shspec::stack::_head-type)"
   local -r cleanhead="$head"
 
   # some statements are implicitly terminated; explicitly doing so is
   # indicitive of a syntax issue
   [ "${head:0:1}" != : ] \
-    || _bail "unexpected \`end': still processing \`$cleanhead'" $(caller)
+    || shspec::bail \
+      "unexpected \`end': still processing \`$cleanhead'" $(caller)
 
-  _sstack-pop >/dev/null || _bail "unmatched \`end'"
+  shspec::stack::_pop >/dev/null || shspec::bail "unmatched \`end'"
 }
 
 
@@ -144,10 +145,10 @@ end()
 # That is, this declares "given this command, I can expect that..."
 expect()
 {
-  _sstack-assert-within it expect $(caller)
+  shspec::stack::_assert-within it expect $(caller)
   __spec_result="$("$@" 2>"$__spec_errpath")"
   __spec_rexit=$?
-  _sstack-push :expect $(caller) "$@"
+  shspec::stack::_push :expect $(caller) "$@"
 }
 
 
@@ -160,12 +161,13 @@ to()
 {
   __spec_caller=${__spec_caller:-$(caller)}
 
-  [ $# -gt 0 ] || _bail "missing assertion string for \`to'" $__spec_caller
+  [ $# -gt 0 ] || \
+    shspec::bail "missing assertion string for \`to'" $__spec_caller
 
-  _sstack-assert-follow :expect to $(caller)
-  _sstack-pop
+  shspec::stack::_assert-follow :expect to $(caller)
+  shspec::stack::_pop
 
-  __handle-to "$__spec_rexit" $__SHIFTN \
+  shspec::__handle-to "$__spec_rexit" $__SHIFTN \
     "$__spec_errpath" "$__spec_envpath" "$@" \
     || fail "$*"
 
@@ -181,7 +183,7 @@ to()
 #
 #   <exit code> <shiftn> <...N> <expect type> <...remainder clause>
 #
-__handle-to()
+shspec::__handle-to()
 {
   local -ri rexit="$1"
   local -ri shiftn="$2"
@@ -192,9 +194,9 @@ __handle-to()
   local -r type="$1"
   shift
 
-  local -r assert="_expect--$type"
+  local -r assert="shspec::expect::$type"
   type "$assert" &>/dev/null \
-    || _bail "unknown expectation: \`$type'" $__spec_caller
+    || shspec::bail "unknown expectation: \`$type'" $__spec_caller
 
   # first argument is exit code, second is the number of arguments to shift
   # to place $1 at the remainder clause, third is the path to the stderr
@@ -210,7 +212,7 @@ __handle-to()
 # Alias for _handle-to
 #
 # Shows intent to proxy a call and allows proxy implementation to vary.
-_proxy-to() { __handle-to "$@"; }
+shspec::proxy-to() { shspec::__handle-to "$@"; }
 
 
 ##
@@ -221,8 +223,8 @@ and()
 
   # the most recently popped value should be an expect premise, implying
   # that an expectation declaration implicitly popped it
-  _sstack-unpop
-  _sstack-assert-within :expect and $(caller) \
+  shspec::stack::_unpop
+  shspec::stack::_assert-within :expect and $(caller) \
     "follow an expectation as part of"
 
   "$@"
@@ -249,7 +251,7 @@ fail()
   echo "  exit code: $__spec_rexit"
 
   echo
-  _bail "expectation failure"
+  shspec::bail "expectation failure"
 }
 
 
@@ -261,7 +263,7 @@ fail()
 #
 # If no file and line number are provided, this will default to the current
 # spec caller, if any.
-_bail()
+shspec::bail()
 {
   local -r msg="$1"
   local line="$2"
