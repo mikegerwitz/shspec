@@ -1,7 +1,7 @@
 #!/bin/bash
 # Parser stack
 #
-#  Copyright (C) 2014 Mike Gewitz
+#  Copyright (C) 2014 Mike Gerwitz
 #
 #  This file is part of shspec.
 #

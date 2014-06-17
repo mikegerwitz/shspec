@@ -1,7 +1,7 @@
 #!/bin/bash
 # Utility functions/procedures
 #
-#  Copyright (C) 2014 Mike Gewitz
+#  Copyright (C) 2014 Mike Gerwitz
 #
 #  This file is part of shspec.
 #
