@@ -243,10 +243,10 @@ fail()
   echo "expected to $*" >&2
 
   echo '  stdout:'
-  sed 's/^/    /g' <<< "$__spec_result"
+  sed 's/^/    /g' < <( xxd < "$__spec_outpath" )
   echo
   echo '  stderr:'
-  sed 's/^/    /g' "$__spec_errpath"
+  sed 's/^/    /g' < <( xxd < "$__spec_errpath" )
   echo
   echo "  exit code: $__spec_rexit"
 
@@ -274,10 +274,10 @@ shspec::bail()
     read line file <<< "$__spec_caller"
   fi
 
-  echo -n "error: $1" >&2
+  echo -n "error: $msg" >&2
   [ -n "$file" ] && echo -n " at $file:$line" >&2
 
-  echo
+  echo >&2
   exit 1
 }
 
