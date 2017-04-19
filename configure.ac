@@ -22,6 +22,9 @@ AC_INIT([shspec], [0.0.1-dev], [mikegerwitz@gnu.org])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([foreign])
 
+AC_CHECK_PROGS(XXD, [xxd])
+test "$XXD" || AC_MSG_ERROR([missing xxd])
+
 # generate files from their *.in counterparts
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
