@@ -1,7 +1,7 @@
 #!/bin/bash
 # Specification language
 #
-#  Copyright (C) 2014 Mike Gerwitz
+#  Copyright (C) 2014, 2017 Mike Gerwitz
 #
 #  This file is part of shspec.
 #
@@ -45,14 +45,14 @@ shspec::__mktemp-shm()
 }
 
 
-# stderr file
+# std{out,err} file
+readonly __spec_outpath="$(shspec::__mktemp-shm)"
 readonly __spec_errpath="$(shspec::__mktemp-shm)"
 
 # env dump file
 readonly __spec_envpath="$(shspec::__mktemp-shm)"
 
-# most recent expect result and its exit code
-declare __spec_result=
+# most recent expect result exit code
 declare -i __spec_rexit=0
 
 # most recent caller for expectations
@@ -146,7 +146,7 @@ end()
 expect()
 {
   shspec::stack::_assert-within it expect $(caller)
-  __spec_result="$("$@" 2>"$__spec_errpath")"
+  ( "$@" >"$__spec_outpath" 2>"$__spec_errpath" )
   __spec_rexit=$?
   shspec::stack::_push :expect $(caller) "$@"
 }
@@ -204,7 +204,7 @@ shspec::__handle-to()
   # shift argument allows the implementation to vary without breaking BC so
   # long as the meaning of the shifted arguments do not change
   $assert $rexit $__SHIFTN "$errpath" "$envpath" "$@" \
-    < <( echo -n "$__spec_result" )
+    < "$__spec_outpath"
 }
 
 

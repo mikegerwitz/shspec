@@ -1,7 +1,7 @@
 #!/bin/bash
 # Specification DSL test
 #
-#  Copyright (C) 2014 Mike Gerwitz
+#  Copyright (C) 2014, 2017 Mike Gerwitz
 #
 #  This file is part of shspec.
 #
@@ -136,6 +136,36 @@ describe expect
         describe foo
           it handles whitespace
             expect chk "foo bar"
+              to succeed
+          end
+        end
+      '; to succeed
+    end
+
+    # if result data are stored in a variable, the shell will remove
+    # trailing whitespace, which is certainly _not_ what we want
+    it retains trailing newlines
+      expect test-run <<< '
+        chk() { test $( wc -l ) -eq 3; }
+        describe foo
+          it retains trailing whitespace
+            expect chk <<< "foomoo
+
+                            "
+              to succeed
+          end
+        end
+      '; to succeed
+    end
+
+    # null bytes must be properly handled when comparing binary data
+    it handles binary comparison with null bytes
+      expect test-run <<< '
+        input=007a0000
+        chk() { test $( xxd -p ) == "$input"; }
+        describe foo
+          it handles null bytes
+            expect chk < <( xxd -r -p <<< "$input" )
               to succeed
           end
         end
