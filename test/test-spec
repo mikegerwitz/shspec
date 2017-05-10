@@ -38,9 +38,9 @@ test-run()
 }
 
 
-describe shspec::begin-spec
+describe shspec:begin-spec
   it is a placeholder that exits successfully
-    expect shspec::begin-spec
+    expect shspec:begin-spec
       to succeed
   end
 end
@@ -179,7 +179,7 @@ describe expect
     it is provided premise exit code as first argument
       expect test-run <<< '
         declare excode=123
-        shspec::expect::chk() { test "$1" -eq $excode; }
+        shspec:expect:chk() { test "$1" -eq $excode; }
 
         describe foo
           it exposes exit code
@@ -195,7 +195,7 @@ describe expect
     it is provided remainder clause after shift argument
       expect test-run <<< '
         declare remain="a b c"
-        shspec::expect::chk()
+        shspec:expect:chk()
         {
           shift "$2"
           test "$*" == "$remain"
@@ -213,7 +213,7 @@ describe expect
     it receives premise output via stdin
       expect test-run <<< '
         declare str=foo
-        shspec::expect::chk() { test "$(cat)" == "$str"; }
+        shspec:expect:chk() { test "$(cat)" == "$str"; }
 
         describe foo
           it pipes command output
@@ -228,7 +228,7 @@ describe expect
     # newline will be added; we don't want that!
     it does not have newline added to premise output if missing
       expect test-run <<< '
-        shspec::expect::chk() { test "$( wc -c )" -eq 0; }
+        shspec:expect:chk() { test "$( wc -c )" -eq 0; }
 
         describe foo
           it should not add newline
@@ -338,18 +338,18 @@ describe expect
   end
 
 
-  describe shspec::proxy-to
+  describe shspec:proxy-to
     it proxies remainder clause with variable shift length
       expect test-run <<< '
         expected="foo bar baz"
-        shspec::expect::chk() { shift "$2"; test "$*" == "$expected"; }
+        shspec:expect:chk() { shift "$2"; test "$*" == "$expected"; }
 
         describe foo
           it should succeed
-            expect shspec::proxy-to 0 2 chk $expected
+            expect shspec:proxy-to 0 2 chk $expected
               to succeed
 
-            expect shspec::proxy-to 0 3 /dev/null chk $expected
+            expect shspec:proxy-to 0 3 /dev/null chk $expected
               to succeed
           end
         end

@@ -23,9 +23,9 @@ source spec.sh
 
 declare -r tcase="${1?Missing test case path}"
 
-shspec::begin-spec
+shspec:begin-spec
   cd "$( dirname "$tcase" )" \
     && source "$tcase" \
     || exit $?
-shspec::end-spec
+shspec:end-spec
 

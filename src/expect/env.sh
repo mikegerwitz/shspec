@@ -27,7 +27,7 @@ __INC_EXPECT_ENV=1
 # Expect that an environment variable is set to a particular value, or
 # assert on flags
 #
-shspec::expect::__env()
+shspec:expect:__env()
 {
   local -r expflags="$1" var="$2" cmp="$3"
   shift 3
@@ -35,7 +35,7 @@ shspec::expect::__env()
 
   # TODO: support escaped newlines
   local flags val
-  shspec::expect::__read-env-line "$var" flags val < "$envpath"
+  shspec:expect:__read-env-line "$var" flags val < "$envpath"
 
   # perform flag assertion if requested
   test -n "$expflags" && {
@@ -74,7 +74,7 @@ shspec::expect::__env()
 # Expected output is of the form:
 #   declare -flags? -- var="val"
 #
-shspec::expect::__read-env-line()
+shspec:expect:__read-env-line()
 {
   local -r var="$1" destflag="$2" destval="$3"
 
@@ -90,26 +90,26 @@ shspec::expect::__read-env-line()
 ##
 # Expect that an environment variable has been set to a certain value
 #
-shspec::expect::set()
+shspec:expect:set()
 {
   local -ri shiftn="$2"
   local -r  envpath="$4"
   shift "$shiftn"
 
   # ensure envpath is available
-  shspec::_chk-shiftn 4 "$shiftn"
+  shspec:_chk-shiftn 4 "$shiftn"
 
   # no flag expectation
-  shspec::expect::__env '' "$@"
+  shspec:expect:__env '' "$@"
 }
 
 
 ##
 # Alias for `set`
 #
-shspec::expect::declare()
+shspec:expect:declare()
 {
-  shspec::expect::set "$@"
+  shspec:expect:set "$@"
 }
 
 
@@ -118,16 +118,16 @@ shspec::expect::declare()
 #
 # Same syntax as `set`
 #
-shspec::expect::export()
+shspec:expect:export()
 {
   local -ri shiftn="$2"
   local -r  envpath="$4"
   shift "$shiftn"
 
   # ensure envpath is available
-  shspec::_chk-shiftn 4 "$shiftn"
+  shspec:_chk-shiftn 4 "$shiftn"
 
   # expect the -x flag, which denotes export
-  shspec::expect::__env x "$@"
+  shspec:expect:__env x "$@"
 }
 

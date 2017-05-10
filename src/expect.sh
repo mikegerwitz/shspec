@@ -28,12 +28,12 @@ source expect/env.sh
 
 ##
 # Shorthand for bailing out on unrecognized clauses
-shspec::bail-clause()
+shspec:bail-clause()
 {
   local -r type="$1"
   local -r clause="$2"
 
-  shspec::bail "unrecognized \`$type' clause: \`$2'"
+  shspec:bail "unrecognized \`$type' clause: \`$2'"
 }
 
 
@@ -44,12 +44,12 @@ shspec::bail-clause()
 # where the remainder clause begins; this ensures that shspec can continue
 # to evolve in the future without BC breaks in properly designed expection
 # handlers.
-shspec::_chk-shiftn()
+shspec:_chk-shiftn()
 {
   local -ri expect="$1"
   local -ri given="$2"
 
-  test "$given" -ge "$expect" || shspec::bail \
+  test "$given" -ge "$expect" || shspec:bail \
     "internal: expected shift of at least $expect, but given $given"
 }
 
@@ -59,16 +59,16 @@ shspec::_chk-shiftn()
 # spoken
 #
 # For example, "to be silent".
-shspec::expect::be() { shspec::proxy-to "$@"; }
+shspec:expect:be() { shspec:proxy-to "$@"; }
 
 
 ##
 # Basic success and failure (zero or non-zero exit code)
-shspec::expect::succeed() { test "$1" -eq 0; }
-shspec::expect::fail()    { test "$1" -ne 0; }
+shspec:expect:succeed() { test "$1" -eq 0; }
+shspec:expect:fail()    { test "$1" -ne 0; }
 
 
 ##
 # Inverts the result of an expectation represented by the remainder clause
-shspec::expect::not() { ! shspec::proxy-to "$@"; }
+shspec:expect:not() { ! shspec:proxy-to "$@"; }
 

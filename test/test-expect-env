@@ -31,7 +31,7 @@ declare -- nonexport_empty=""'
 declare curchk
 function setchk()
 {
-  shspec::expect::$curchk 0 4 <(:) <( echo "$stubenv" ) "$@"
+  shspec:expect:$curchk 0 4 <(:) <( echo "$stubenv" ) "$@"
 }
 
 

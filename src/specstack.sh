@@ -28,7 +28,7 @@ declare -i __sstackp=0
 
 ##
 # Push a frame onto the stack
-shspec::stack::_push()
+shspec:stack:_push()
 {
   local -r type="$1"
   local -r srcline="$2"
@@ -44,7 +44,7 @@ shspec::stack::_push()
 # Pop a frame from the stack
 #
 # It is possible to recover the most recently popped frame.
-shspec::stack::_pop()
+shspec:stack:_pop()
 {
   [ "$__sstackp" -gt 0 ] || return 1
 
@@ -61,7 +61,7 @@ shspec::stack::_pop()
 # Note that this should never be called more than once in an attempt to
 # recover additional frames; it will not work, and you will make bad things
 # happen, and people will hate you.
-shspec::stack::_unpop()
+shspec:stack:_unpop()
 {
   ((__sstackp++))
 }
@@ -69,7 +69,7 @@ shspec::stack::_unpop()
 
 ##
 # Return with a non-zero status only if the stack is non-empty
-shspec::stack::_empty()
+shspec:stack:_empty()
 {
   test "$__sstackp" -eq 0
 }
@@ -77,7 +77,7 @@ shspec::stack::_empty()
 
 ##
 # Output the current size of the stack
-shspec::stack::_size()
+shspec:stack:_size()
 {
   echo "$__sstackp"
 }
@@ -85,7 +85,7 @@ shspec::stack::_size()
 
 ##
 # Output the current stack frame
-shspec::stack::_head()
+shspec:stack:_head()
 {
   local -ri headi=$((__sstackp-1))
   echo "${__sstack[$headi]}"
@@ -94,27 +94,27 @@ shspec::stack::_head()
 
 ##
 # Output the type of the current stack frame
-shspec::stack::_head-type()
+shspec:stack:_head-type()
 {
-  _shspec::stack::_headn 0
+  _shspec:stack:_headn 0
 }
 
 
 ##
 # Output the Nth datum of the current stack frame
-_shspec::stack::_headn()
+_shspec:stack:_headn()
 {
   local -ri i="$1"
   local parts
 
-  shspec::stack::_read -a parts <<< "$(shspec::stack::_head)"
+  shspec:stack:_read -a parts <<< "$(shspec:stack:_head)"
   echo "${parts[$i]}"
 }
 
 
 ##
 # Deconstruct stack frame from stdin in a `read`-like manner
-shspec::stack::_read()
+shspec:stack:_read()
 {
   IFS=\| read "$@"
 }
@@ -125,10 +125,10 @@ shspec::stack::_read()
 #
 # Return immediately with a non-zero status if there are no frames on the
 # stack.
-shspec::stack::_read-pop()
+shspec:stack:_read-pop()
 {
-  local -r head="$(shspec::stack::_pop)" || return 1
-   shspec::stack::_read "$@" <<< "$head"
+  local -r head="$(shspec:stack:_pop)" || return 1
+   shspec:stack:_read "$@" <<< "$head"
 }
 
 
@@ -137,7 +137,7 @@ shspec::stack::_read-pop()
 #
 # Conceptually, this allows determining if the parent node in a tree-like
 # structure is of a certain type.
-shspec::stack::_assert-within()
+shspec:stack:_assert-within()
 {
   local -r in="$1"
   local -r chk="$2"
@@ -145,21 +145,21 @@ shspec::stack::_assert-within()
   local -r file="$4"
   local -r phrase="${5:-be contained within}"
 
-  local -r head="$(shspec::stack::_head-type)"
+  local -r head="$(shspec:stack:_head-type)"
 
   [ "$head" == "$in" ] \
-    || shspec::bail \
+    || shspec:bail \
       "\`$chk' must $phrase \`$head'; found \`$head' at $file:$line"
 }
 
 
 ##
-# Alias for shspec::stack::_assert-within with altered error message
+# Alias for shspec:stack:_assert-within with altered error message
 #
 # This is intended to convey a different perspective: that a given node is a
 # sibling, not a child, in a tree-like structure.
-shspec::stack::_assert-follow()
+shspec:stack:_assert-follow()
 {
-  shspec::stack::_assert-within "$@" follow
+  shspec:stack:_assert-within "$@" follow
 }
 
