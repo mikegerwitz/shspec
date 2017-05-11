@@ -18,9 +18,25 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-AC_INIT([shspec], [0.0.1-dev], [mtg@gnu.org])
+# version string is dynamically generated
+m4_define([ver], m4_esyscmd(build-aux/vergen))
+m4_if(ver, [], [m4_exit(1)])
+
+AC_INIT([shspec], [ver], [mtg@gnu.org])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([foreign])
+
+# provide more granular version numbers based on the version string, using
+# the format MAJOR.MINOR.REV[-SUFFIX], where SUFFIX can itself contain
+# dashes (and often will)
+m4_define([ver_split],
+  m4_split(
+    patsubst(AC_PACKAGE_VERSION, [^\([^-]+\)-], [\1.]),
+    [\.]))
+AC_SUBST(MAJOR, m4_argn(1, ver_split))
+AC_SUBST(MINOR, m4_argn(2, ver_split))
+AC_SUBST(REV, m4_argn(3, ver_split))
+AC_SUBST(SUFFIX, m4_argn(4, ver_split))
 
 AC_CHECK_PROGS(XXD, [xxd])
 test "$XXD" || AC_MSG_ERROR([missing xxd])
