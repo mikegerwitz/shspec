@@ -1,6 +1,6 @@
-## For use by automake and autoconf
+## shspec doc Makefile.am
 #
-#  Copyright (C) 2014 Mike Gerwitz
+#  Copyright (C) 2017 Mike Gerwitz
 #
 #  This file is part of shspec.
 #
@@ -18,13 +18,5 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-AC_INIT([shspec], [0.0.1-dev], [mtg@gnu.org])
-AC_CONFIG_AUX_DIR([build-aux])
-AM_INIT_AUTOMAKE([foreign])
-
-AC_CHECK_PROGS(XXD, [xxd])
-test "$XXD" || AC_MSG_ERROR([missing xxd])
-
-# generate files from their *.in counterparts
-AC_CONFIG_FILES([Makefile doc/Makefile])
-AC_OUTPUT
+info_TEXINFOS = shspec.texi
+shspec_TEXINFOS = license.texi version.texi
