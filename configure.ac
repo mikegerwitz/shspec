@@ -18,7 +18,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-AC_INIT([shspec], [0.0.1-dev], [mikegerwitz@gnu.org])
+AC_INIT([shspec], [0.0.1-dev], [mtg@gnu.org])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([foreign])
 
